@@ -16,16 +16,9 @@ namespace ContainersRespawnPatcher
 {
     public class Program
     {
-
-        internal static List<Container> containersRespawn = new();
-        internal static List<Container> containersNoRespawn = new();
-
-        internal static List<FormKey> containersRespawnForm = new();
-        internal static List<FormKey> containersNoRespawnForm = new();
-
-        internal static List<string> containersRespawnEID = new();
-        internal static List<string> containersNoRespawnEID = new();
-
+        // Dictionaries of containers
+        internal static Dictionary<FormKey, Container> containersRespawn = new();
+        internal static Dictionary<FormKey, Container> containersNoRespawn = new();
 
         public static Lazy<Settings> _settings = null!;
         public static Settings Settings => _settings.Value;
@@ -38,7 +31,6 @@ namespace ContainersRespawnPatcher
                 .SetTypicalOpen(GameRelease.SkyrimSE, "SynthesisContainers.esp")
                 .Run(args);
         }
-
 
         public static void CreateNewContainers(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
@@ -114,16 +106,8 @@ namespace ContainersRespawnPatcher
                     }
 
                     // Add the containers to the lists
-                    containersRespawn.Add(contOld);
-                    containersNoRespawn.Add(contNew);
-
-                    // Add the containers to the lists
-                    containersRespawnForm.Add(contOld.FormKey);
-                    containersNoRespawnForm.Add(contNew.FormKey);
-
-                    // Add the editor ID to the lists (for convenience)
-                    containersRespawnEID.Add(contOld.EditorID);
-                    containersNoRespawnEID.Add(contNew.EditorID);
+                    containersRespawn.Add(contOld.FormKey, contOld);
+                    containersNoRespawn.Add(contNew.FormKey, contNew);
                 }
                 else
                 {
@@ -134,8 +118,6 @@ namespace ContainersRespawnPatcher
 
             System.Console.WriteLine("Created " + nbCont + " new containers!");
         }
-
-
 
         public static void RunPatch(IPatcherState<ISkyrimMod, ISkyrimModGetter> state)
         {
@@ -156,14 +138,18 @@ namespace ContainersRespawnPatcher
                 if (baseObject is null || baseObject.EditorID is null) return;
 
                 // If the containers have this editor ID, it is a container
-                if (containersRespawnEID.Contains(baseObject.EditorID))
+                if (containersRespawn.ContainsKey(baseObject.FormKey))
                 {
                     if (Settings.debug)
                         System.Console.WriteLine("Swapping object:" + baseObject.EditorID + " in cell: " + cell.Record.EditorID);
 
                     // Swap the container base
                     var placedCopy = placed.GetOrAddAsOverride(state.PatchMod);
-                    placedCopy.Base.SetTo(containersNoRespawn[containersRespawnEID.IndexOf(baseObject.EditorID)]);
+                    string edidnorespawn = baseObject.EditorID + "_NoRespawn";
+
+                    Container c = containersNoRespawn.Values.Where(x => x?.EditorID == edidnorespawn).First();
+                    if (c is null) return;
+                    placedCopy.Base.SetTo(c);
 
                     nbContTotal++;
 
@@ -177,7 +163,7 @@ namespace ContainersRespawnPatcher
                     placedCopy.Ownership.Owner = parent.Ownership.Owner.AsNullable();
                 }
                 // Container already flagged as "No Respawn"
-                else if (containersNoRespawnEID.Contains(baseObject.EditorID))
+                else if (containersNoRespawn.ContainsKey(baseObject.FormKey))
                 {
                     // Nothing to do!
                 }
@@ -215,7 +201,7 @@ namespace ContainersRespawnPatcher
             // Fill the dictionary from the link cache
             state.LoadOrder.PriorityOrder.PlacedObject().WinningContextOverrides(cache)
                 .Where(ctx => {
-                    return containersRespawnForm.Contains(ctx.Record.Base.FormKey) || containersNoRespawnForm.Contains(ctx.Record.Base.FormKey);
+                    return containersRespawn.ContainsKey(ctx.Record.Base.FormKey) || containersNoRespawn.ContainsKey(ctx.Record.Base.FormKey);
                 })
                 .ForEach(ctx => containerContext.Value.Add(ctx.Record.FormKey, ctx));
 
