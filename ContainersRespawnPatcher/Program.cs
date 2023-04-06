@@ -209,7 +209,7 @@ namespace ContainersRespawnPatcher
 
 
             /// Iterate on cells
-            foreach (var cellContext in state.LoadOrder.PriorityOrder.Cell().WinningContextOverrides(cache))
+            foreach (var cellContext in state.LoadOrder.ListedOrder.Cell().WinningContextOverrides(cache))
             {
                 // Ignore null
                 if (cellContext is null || cellContext.Record is null || cellContext.Record.EditorID is null) continue;
