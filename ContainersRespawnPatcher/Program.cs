@@ -101,6 +101,9 @@ namespace ContainersRespawnPatcher
         internal static List<Container> containersRespawn = new();
         internal static List<Container> containersNoRespawn = new();
 
+        internal static List<FormKey> containersRespawnForm = new();
+        internal static List<FormKey> containersNoRespawnForm = new();
+
         internal static List<string> containersRespawnEID = new();
         internal static List<string> containersNoRespawnEID = new();
 
@@ -193,6 +196,10 @@ namespace ContainersRespawnPatcher
                     containersRespawn.Add(contOld);
                     containersNoRespawn.Add(contNew);
 
+                    // Add the containers to the lists
+                    containersRespawnForm.Add(contOld.FormKey);
+                    containersNoRespawnForm.Add(contNew.FormKey);
+
                     // Add the editor ID to the lists (for convenience)
                     containersRespawnEID.Add(contOld.EditorID);
                     containersNoRespawnEID.Add(contNew.EditorID);
@@ -278,95 +285,92 @@ namespace ContainersRespawnPatcher
             CreateNewContainers(state);
 
             // Check all placed objects
-            foreach (var placed in state.LoadOrder.PriorityOrder.PlacedObject().WinningContextOverrides(state.LinkCache))
-            {
-                // Get parent cell
-                placed.TryGetParentSimpleContext<ICellGetter>(out var cell);
+            /*            foreach (var placed in state.LoadOrder.PriorityOrder.PlacedObject().WinningContextOverrides(state.LinkCache))
+                        {
+                            // Get parent cell
+                            placed.TryGetParentSimpleContext<ICellGetter>(out var cell);
 
+                            // Ignore null
+                            if (cell is null || cell.Record is null || cell.Record.EditorID is null) continue;
+                            if (placed is null || cell.Record is null || cell.Record.EditorID is null) continue;
+
+                            // If the placed object is in the "No respawn" locations
+                            if (Settings.CellsNotRespawningSettings.CellNoRespawnEditorIDs.Contains(cell.Record.EditorID))
+                            {
+                                DoContainerSwap(placed, cell);
+                            }
+                            else
+                            {
+                                // Cell is owned by the Player
+                                if (cell.Record?.Ownership?.Owner is not null && cell.Record.Ownership.Owner.FormKey.IDString() == "00000DB1")
+                                {
+                                    DoContainerSwap(placed, cell);
+                                }
+                            }
+                        }
+
+
+                        System.Console.WriteLine("Swapped " + nbContTotal + " containers for a safe No Respawn one!");
+            */
+
+            System.Console.WriteLine("Starting building containers contexts!");
+            var containerContext = new Lazy<Dictionary<FormKey, IModContext<ISkyrimMod, ISkyrimModGetter, IPlacedObject, IPlacedObjectGetter>>>();
+
+            state.LoadOrder.PriorityOrder.PlacedObject().WinningContextOverrides(cache)
+                .Where(ctx => {
+                        return containersRespawnForm.Contains(ctx.Record.Base.FormKey) || containersNoRespawnForm.Contains(ctx.Record.Base.FormKey);
+                    })
+                .ForEach(ctx => containerContext.Value.Add(ctx.Record.FormKey, ctx));
+            System.Console.WriteLine("Made containers contexts!" );
+
+
+            foreach (var cellContext in state.LoadOrder.PriorityOrder.Cell().WinningContextOverrides(cache))
+            {
                 // Ignore null
-                if (cell is null || cell.Record is null || cell.Record.EditorID is null) continue;
-                if (placed is null || cell.Record is null || cell.Record.EditorID is null) continue;
+                if (cellContext is null || cellContext.Record is null || cellContext.Record.EditorID is null) continue;
 
                 // If the placed object is in the "No respawn" locations
-                if (Settings.CellsNotRespawningSettings.CellNoRespawnEditorIDs.Contains(cell.Record.EditorID))
+                if (Settings.CellsNotRespawningSettings.CellNoRespawnEditorIDs.Contains(cellContext.Record.EditorID))
                 {
-                    DoContainerSwap(placed, cell);
-                }
-                else
-                {
-                    // Cell is owned by the Player
-                    if (cell.Record?.Ownership?.Owner is not null && cell.Record.Ownership.Owner.FormKey.IDString() == "00000DB1")
+                    if(Settings.debug)
+                        System.Console.WriteLine("Editing cell: " + cellContext.Record.EditorID);
+
+                    // On all placed Temporary items
+                    foreach (var obj in cellContext.Record.Temporary)
                     {
-                        DoContainerSwap(placed, cell);
+                        if (obj is null || obj is null) continue;
+
+
+                        //FOR SR EXTERIOR obj.DeepCopy().RemapLinks
+
+
+                        containerContext.Value.TryGetValue(obj.FormKey, out var placedContext);
+
+                        if (placedContext is null) continue;
+                        
+                        DoContainerSwap(placedContext, cellContext);
+                    }
+
+                    // On all placed Temporary items
+                    foreach (var obj in cellContext.Record.Persistent)
+                    {
+                        if (obj is null || obj is null) continue;
+
+
+                        //FOR SR EXTERIOR obj.DeepCopy().RemapLinks
+
+
+                        containerContext.Value.TryGetValue(obj.FormKey, out var placedContext);
+
+                        if (placedContext is null) continue;
+
+                        DoContainerSwap(placedContext, cellContext);
                     }
                 }
+
             }
-
-
             System.Console.WriteLine("Swapped " + nbContTotal + " containers for a safe No Respawn one!");
-
-
-
-
-            /*foreach (ICellGetter? cellContext in state.LoadOrder.PriorityOrder.WinningOverrides<ICellGetter>())
-            {
-                 if (cellContext is null || cellContext.EditorID is null) continue;
-
-                // If it is one of the "player homes" or zones with no respawn
-                if (NoRespawnLocations.Contains(cellContext.EditorID))
-                {
-                    var tempObjects = cellContext.Temporary;
-                    if (tempObjects is null) continue;
-
-
-                    //if (!cellContext.TryResolveContext<ISkyrimMod, ISkyrimModGetter, IContainer, IContainerGetter>(state.LinkCache, out var winningContainerContext)) continue;
-
-                    //tempObjects.;
-
-                   // var query = cellContext.Temporary.SelectWhere(x => x.); //.Select(obj => obj.FormKey);
-                    *//*foreach (var f in query)
-                    {
-                        allNoRespawnContainers.TryGetValue(f, out var found);
-                    }*//*
-
-                    
-
-                    System.Console.WriteLine("Editing cell: " + cellContext.EditorID);
-                    foreach (IPlacedGetter obj in cellContext.Temporary)
-                    {
-                        if (obj is null || obj is null ) continue;
-
-                        //if(obj.EnableParent.GetType())
-                        //System.Console.WriteLine("      " + obj.FormKey);
-
-                        //var cont = state.PatchMod.Cells.GetOrAddAsOverride(cellContext);
-                        //obj.FormKey
-
-                        //allNoRespawnContainers.TryGetValue(obj, out var found);
-
-
-                        //obj.ContainedFormLinks.
-
-                        //state.PatchMod.Containers.GetOrAddAsOverride(obj);
-                        //Container v = obj.AsLink().TryResolve<Container>(cache);
-                        //if (v is null) continue;
-
-
-                        //if (obj.Base == )
-                        //;
-
-                        *//*Crates.Select(x =>
-                        {
-                            List<Container> toAdd = AddContainers(state, x);
-                            return (x, toAdd);
-                        }).ForEach(tuple => crateContainers.Add(tuple.x, tuple.toAdd));*//*
-
-                    }
-                }
-            }*/
-
-
-
+                
             System.Console.WriteLine("All done!");
         }
     }
