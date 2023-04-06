@@ -14,89 +14,8 @@ using Noggog;
 
 namespace ContainersRespawnPatcher
 {
-	public class Program
+    public class Program
     {
-        /*private static readonly HashSet<FormLink<IContainerGetter>> BaseContainerGetters = new()
-        {
-            Skyrim.Container.BarrelFish01,
-            Skyrim.Container.BarrelFood01,
-            Skyrim.Container.BarrelFood01_Snow,
-            Skyrim.Container.BarrelIngredientCommon01,
-            Skyrim.Container.BarrelIngredientCommon01_Snow,
-            Skyrim.Container.BarrelIngredientUncommon01,
-            Skyrim.Container.BarrelIngredientUncommon01_Snow,
-            Skyrim.Container.BarrelMeat01,
-            Skyrim.Container.BeeHive,
-            Skyrim.Container.BeeHiveVacant,
-            Skyrim.Container.BlackBriarMeadBarrel01,
-            Skyrim.Container.CommonCoffin01,
-            Skyrim.Container.CommonWardrobe01,
-            Skyrim.Container.CompanionsKodlakNightTable01,
-            Skyrim.Container.Cupboard01,
-            Skyrim.Container.DesecratedImperial,
-            Skyrim.Container.DesecratedStormCloak,
-            Skyrim.Container.Dresser01,
-            Skyrim.Container.DweDresser01,
-            Skyrim.Container.EndTable01,
-            Skyrim.Container.HonningbrewMeadBarrel01,
-            Skyrim.Container.MammothContainer01,
-            Skyrim.Container.MarkarthBurialUrn,
-            Skyrim.Container.MarkarthCoffin01container,
-            Skyrim.Container.MarkarthCoffin02container,
-            Skyrim.Container.MeadBarrel02,
-            Skyrim.Container.MiscSack02Large,
-            Skyrim.Container.MiscSack02LargeFlat,
-            Skyrim.Container.MiscSack02Small,
-            Skyrim.Container.MiscSack02SmallFlat,
-            Skyrim.Container.MiscSackLarge,
-            Skyrim.Container.MiscSackLargeFlat01,
-            Skyrim.Container.MiscSackLargeFlat02,
-            Skyrim.Container.MiscSackLargeFlat03,
-            Skyrim.Container.MiscSackSmall,
-            Skyrim.Container.NobleChest01,
-            Skyrim.Container.NobleChestDrawers01,
-            Skyrim.Container.NobleChestDrawers02,
-            Skyrim.Container.NobleChestDrawers02NoName,
-            Skyrim.Container.NobleCupboard01,
-            Skyrim.Container.NobleCupboard02,
-            Skyrim.Container.NobleNightTable01,
-            Skyrim.Container.NobleWardrobe01,
-            Skyrim.Container.OrcDresser01,
-            Skyrim.Container.OrcEndTable01,
-            Skyrim.Container.PersonalChestSmall,
-            Skyrim.Container.PlayerBookShelfContainer,
-            Skyrim.Container.PlayerHouseChest,
-            Skyrim.Container.PlayerPotionRackContainer,
-            Skyrim.Container.PlayerWerewolfStorage,
-            Skyrim.Container.RTCoffin01,
-            Skyrim.Container.SafewithLock,
-            Skyrim.Container.SBurialUrn01,
-            Skyrim.Container.SCoffin01,
-            Skyrim.Container.SCoffinPoor01,
-            Skyrim.Container.SkyHavenArmoryChest,
-            Skyrim.Container.SovBarrel01,
-            Skyrim.Container.SpitPotClosed01,
-            Skyrim.Container.SpitPotClosed01AlchemyCommon,
-            Skyrim.Container.SpitPotClosed02,
-            Skyrim.Container.SpitPotClosedLoose01,
-            Skyrim.Container.SpitPotClosedLoose01AlchemyCommon,
-            Skyrim.Container.StrongBox,
-            Skyrim.Container.UnownedChest,
-            Skyrim.Container.UpperCupboard01,
-            Skyrim.Container.UpperDresser01,
-            Skyrim.Container.UpperEndTable01,
-            Skyrim.Container.UpperEndTable02,
-            Skyrim.Container.UpperWardrobe01,
-            Skyrim.Container.VendorMiscChestSmall,
-            Skyrim.Container.WE19BanditLootChest,
-            Skyrim.Container.WHcoffin01,
-            Skyrim.Container.WinhelmBurialUrn,
-            Skyrim.Container.WinterholdBookCase01,
-            Skyrim.Container.wispCorpseContainer,
-            Skyrim.Container.WRBurialUrn01,
-            Skyrim.Container.WRCoffin01,
-            Skyrim.Container.WRinteractiveBookshelfContainer
-        };*/
 
         internal static List<Container> containersRespawn = new();
         internal static List<Container> containersNoRespawn = new();
@@ -107,8 +26,6 @@ namespace ContainersRespawnPatcher
         internal static List<string> containersRespawnEID = new();
         internal static List<string> containersNoRespawnEID = new();
 
-        /*internal static Dictionary<IFormLinkGetter<ISkyrimMajorRecordGetter>, Container> allRespawnContainers = new();
-        internal static Dictionary<IFormLinkGetter<ISkyrimMajorRecordGetter>, Container> allNoRespawnContainers = new();*/
 
         public static Lazy<Settings> _settings = null!;
         public static Settings Settings => _settings.Value;
@@ -138,7 +55,7 @@ namespace ContainersRespawnPatcher
                 // If the EditorID of the container is found in the settings
                 if (Settings.SafeContainersSettings.ContainerEditorIDs.Contains(containerGetter.EditorID))
                 {
-                    if(Settings.debug)
+                    if (Settings.debug)
                         System.Console.WriteLine("Container found: " + containerGetter.EditorID);
 
                     // Check if the container already exists
@@ -154,13 +71,13 @@ namespace ContainersRespawnPatcher
                     // Duplicate the record
                     Container contNew = state.PatchMod.Containers.DuplicateInAsNewRecord<Container, IContainerGetter>(containerGetter);
 
-                    // Get the current record
+                    // Get the existing record
                     var contOld = state.PatchMod.Containers.GetOrAddAsOverride(containerGetter);
 
                     // Skip null
                     if (contOld.EditorID is null || contNew.EditorID is null) continue;
 
-                    // If the container has a flag already, duplicate it and add no respawn
+                    // If the container has a Respawn flag already, duplicate it and add no respawn
                     if (containerGetter.Flags.HasFlag(Container.Flag.Respawns))
                     {
                         // Name the new container NORESPAWN & remove the respawn flag 
@@ -173,21 +90,25 @@ namespace ContainersRespawnPatcher
                         //Count
                         nbCont++;
                     }
-                    // The container does not have the flag yet
+                    // The container does not have the flag
                     else
                     {
-                        // Duplicate the record, add the NORESPAWN text to the copy
+                        // If the existing container has NoRespawn in their editorID, ignore it altogether
+                        if (contOld.EditorID.Contains("norespawn", StringComparison.OrdinalIgnoreCase)) continue;
+
+                        // Append the _NoRespawn text to the copy
                         contNew!.EditorID = contNew.EditorID + "_NoRespawn";
 
                         // Add the flag to the original container
                         contOld.Flags |= Container.Flag.Respawns;
+
 
                         if (Settings.debug)
                         {
                             System.Console.WriteLine("   > Created new container: " + contNew.EditorID);
                             System.Console.WriteLine("   > Added Respawn flag to container: " + contOld.EditorID);
                         }
-                        
+
                         // Count
                         nbCont++;
                     }
@@ -267,72 +188,50 @@ namespace ContainersRespawnPatcher
                 }
             }
 
+            /// Check settings
             System.Console.WriteLine("Doing settings checks...");
 
-            if(Settings.CellsNotRespawningSettings.CellNoRespawnEditorIDs.Count == 0)
+            if (Settings.CellsNotRespawningSettings.CellNoRespawnEditorIDs.Count == 0)
             {
-                System.Console.WriteLine("WARNING: NO SAFE PLAYER HOME CONTAINERS SET");
+                System.Console.WriteLine("WARNING: NO SAFE PLAYER HOME SET, ALL CONTAINERS WILL RESPAWN IN ALL CELLS");
             }
-            if(Settings.SafeContainersSettings.ContainerEditorIDs.Count == 0)
+            if (Settings.SafeContainersSettings.ContainerEditorIDs.Count == 0)
             {
                 System.Console.WriteLine("ERROR: NO CONTAINERS SET, ABORTING! THIS WILL CAUSE MAJOR ISSUES IN YOUR GAME!");
                 throw new Exception("Invalid settings!");
             }
 
             System.Console.WriteLine("Settings seem valid, starting!");
-            
-            // Create the No Respawn containers
+
+            /// Create the No Respawn containers
             CreateNewContainers(state);
 
-            // Check all placed objects
-            /*            foreach (var placed in state.LoadOrder.PriorityOrder.PlacedObject().WinningContextOverrides(state.LinkCache))
-                        {
-                            // Get parent cell
-                            placed.TryGetParentSimpleContext<ICellGetter>(out var cell);
-
-                            // Ignore null
-                            if (cell is null || cell.Record is null || cell.Record.EditorID is null) continue;
-                            if (placed is null || cell.Record is null || cell.Record.EditorID is null) continue;
-
-                            // If the placed object is in the "No respawn" locations
-                            if (Settings.CellsNotRespawningSettings.CellNoRespawnEditorIDs.Contains(cell.Record.EditorID))
-                            {
-                                DoContainerSwap(placed, cell);
-                            }
-                            else
-                            {
-                                // Cell is owned by the Player
-                                if (cell.Record?.Ownership?.Owner is not null && cell.Record.Ownership.Owner.FormKey.IDString() == "00000DB1")
-                                {
-                                    DoContainerSwap(placed, cell);
-                                }
-                            }
-                        }
-
-
-                        System.Console.WriteLine("Swapped " + nbContTotal + " containers for a safe No Respawn one!");
-            */
-
+            /// Create a dictionary of placed containers
             System.Console.WriteLine("Starting building containers contexts!");
+
+            // Create the dictionary
             var containerContext = new Lazy<Dictionary<FormKey, IModContext<ISkyrimMod, ISkyrimModGetter, IPlacedObject, IPlacedObjectGetter>>>();
 
+            // Fill the dictionary from the link cache
             state.LoadOrder.PriorityOrder.PlacedObject().WinningContextOverrides(cache)
                 .Where(ctx => {
-                        return containersRespawnForm.Contains(ctx.Record.Base.FormKey) || containersNoRespawnForm.Contains(ctx.Record.Base.FormKey);
-                    })
+                    return containersRespawnForm.Contains(ctx.Record.Base.FormKey) || containersNoRespawnForm.Contains(ctx.Record.Base.FormKey);
+                })
                 .ForEach(ctx => containerContext.Value.Add(ctx.Record.FormKey, ctx));
-            System.Console.WriteLine("Made containers contexts!" );
+
+            System.Console.WriteLine("Containers contexts done!");
 
 
+            /// Iterate on cells
             foreach (var cellContext in state.LoadOrder.PriorityOrder.Cell().WinningContextOverrides(cache))
             {
                 // Ignore null
                 if (cellContext is null || cellContext.Record is null || cellContext.Record.EditorID is null) continue;
 
-                // If the placed object is in the "No respawn" locations
+                // If the cell is listed in the "No respawn" locations
                 if (Settings.CellsNotRespawningSettings.CellNoRespawnEditorIDs.Contains(cellContext.Record.EditorID))
                 {
-                    if(Settings.debug)
+                    if (Settings.debug)
                         System.Console.WriteLine("Editing cell: " + cellContext.Record.EditorID);
 
                     // On all placed Temporary items
@@ -345,13 +244,12 @@ namespace ContainersRespawnPatcher
 
 
                         containerContext.Value.TryGetValue(obj.FormKey, out var placedContext);
-
                         if (placedContext is null) continue;
-                        
+
                         DoContainerSwap(placedContext, cellContext);
                     }
 
-                    // On all placed Temporary items
+                    // On all placed Persistent items
                     foreach (var obj in cellContext.Record.Persistent)
                     {
                         if (obj is null || obj is null) continue;
@@ -361,7 +259,6 @@ namespace ContainersRespawnPatcher
 
 
                         containerContext.Value.TryGetValue(obj.FormKey, out var placedContext);
-
                         if (placedContext is null) continue;
 
                         DoContainerSwap(placedContext, cellContext);
@@ -369,8 +266,9 @@ namespace ContainersRespawnPatcher
                 }
 
             }
+
             System.Console.WriteLine("Swapped " + nbContTotal + " containers for a safe No Respawn one!");
-                
+
             System.Console.WriteLine("All done!");
         }
     }

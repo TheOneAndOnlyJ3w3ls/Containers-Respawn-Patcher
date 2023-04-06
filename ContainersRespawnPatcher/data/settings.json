@@ -1,6 +1,5 @@
 {
   "debug": true,
-
   "CellsNotRespawningSettings": {
     "CellNoRespawnEditorIDs": [
       "BarrelFish01",
@@ -104,28 +103,5 @@
       "BYOHHouse3PaleBasement",
       "DLC2RRSeverinHouse"
     ]
-  },
-  "DefaultSettings": {
-    "TweakOtherArrowType": true,
-    "OtherArrowGravity": 0.2,
-    "OtherArrowSpeed": 2000.0
-  },
-  "MagicSettings": {
-    "MagicProjectiles": {
-      "Skyrim": [
-        {
-          "FormToSwap": "012FCF:Skyrim.esm",
-          "PathToNewModel": "Magic\\FireboltProjectile.nif"
-        },
-        {
-          "FormToSwap": "0F117E:Skyrim.esm",
-          "PathToNewModel": "Magic\\IceProjectile.nif"
-        }
-      ]
-    },
-    "TweakMagic": true,
-    "ShoutSpeed": 1000.0,
-    "MagicGravity": 0.2,
-    "MagicSpeed": 2500.0
   }
 }
