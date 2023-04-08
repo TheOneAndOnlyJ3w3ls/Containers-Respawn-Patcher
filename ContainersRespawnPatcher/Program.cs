@@ -157,12 +157,12 @@ namespace ContainersRespawnPatcher
                     var parent = (ICellGetter?)placed.Parent?.Record;
 
                     // Handle ownership properly
-                    if (placed?.Record.Ownership is null) return;
-                    if (placedCopy.Ownership is null) return;
+                    if (placed?.Record.Owner is null) return;
+                    if (placedCopy.Owner is null) return;
 
                     // Just in case the copy has ownership issues
-                    if (placedCopy.Ownership.Owner != placed.Record.Ownership.Owner)
-                        placedCopy.Ownership.Owner = placed.Record.Ownership.Owner.AsNullable();
+                    if (placedCopy.Owner != placed.Record.Owner)
+                        placedCopy.Owner = placed.Record.Owner.AsNullable();
                 }
                 // Container already flagged as "No Respawn"
                 else if (containersNoRespawn.ContainsKey(baseObject.FormKey))
