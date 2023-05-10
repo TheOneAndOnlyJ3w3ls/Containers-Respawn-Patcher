@@ -9,3 +9,6 @@ Settings:
 -list of cell EditorIDs where all containers will be replaced with "NoRespawn" variants. By default, only Skyrim and DLCs player homes are included.
 -debug: leave it off. It just enables some output lines for myself.
 
+
+Please go download & endorse on nexus if you found the patcher useful! It'd help some :)
+https://www.nexusmods.com/skyrimspecialedition/mods/88650
