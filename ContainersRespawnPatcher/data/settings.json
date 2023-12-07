@@ -1,7 +1,7 @@
 {
   "debug": true,
-  "CellsNotRespawningSettings": {
-    "CellNoRespawnEditorIDs": [
+  "SafeContainersSettings": {
+    "ContainerEditorIDs": [
       "BarrelFish01",
       "BarrelFood01",
       "BarrelFood01_Snow",
@@ -81,8 +81,8 @@
       "WRinteractiveBookshelfContainer"
     ]
   },
-  "SafeContainersSettings": {
-    "ContainerEditorIDs": [
+  "CellsNotRespawningSettings": {
+    "CellNoRespawnEditorIDs": [
       "WhiterunJorrvaskrBasement",
       "WhiterunJorrvaskr",
       "WinterholdCollegeHallofAttainment",
